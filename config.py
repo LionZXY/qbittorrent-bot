@@ -15,10 +15,11 @@ def load_config_with_env(filepath: str):
     if path.exists(filepath):
         return toml.load(filepath, AttrDict)
     else:
-        toml_config = os.getenv('TOML_CONFIG')
+        toml_config = os.environ.get('TOML_CONFIG')
         if toml_config is None:
-            print(f"The file {filepath} is not found")
-        return toml.loads(toml_config, AttrDict)
+            exit_with_message(f"The file {filepath} is not found")
+            return
+        return toml.loads(toml_config.encode('latin1').decode('unicode_escape'), AttrDict)
 
 
 config = load_config_with_env('config.toml')
@@ -43,4 +44,5 @@ for config_section, example_config_section_dict in example_config.items():
 
         config_val = config_section_dict[example_config_key]
         if type(config_val) is not type(example_config_val):
-            exit_with_message(f"type of field [{config_section}.{example_config_key}] should be of type '{type(example_config_val).__name__}'")
+            exit_with_message(
+                f"type of field [{config_section}.{example_config_key}] should be of type '{type(example_config_val).__name__}'")
